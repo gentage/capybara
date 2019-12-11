@@ -1,0 +1,10 @@
+type Query {
+}
+
+type Subscription {
+    subscribe(channel: String!): String!
+}
+
+type Mutation {
+    publish(channel: String! msg: String!): String!
+}
