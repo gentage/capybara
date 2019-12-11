@@ -1,4 +1,4 @@
-module kalem
+module github.com/gentage/capybara
 
 go 1.13
 

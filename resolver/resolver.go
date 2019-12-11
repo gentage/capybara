@@ -2,7 +2,8 @@ package resolver
 
 import (
 	"context"
-	"kalem/pubsub"
+
+	"github.com/gentage/capybara/pubsub"
 )
 
 type Resolver struct {
@@ -11,6 +12,10 @@ type Resolver struct {
 
 func MakeResolver(pubsubClient pubsub.Client) *Resolver {
 	return &Resolver{pubsubClient: pubsubClient}
+}
+
+func (r *Resolver) Ping() string {
+	return "Pong!"
 }
 
 type PublishArgs struct {

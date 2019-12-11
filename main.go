@@ -7,11 +7,12 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gentage/capybara/pubsub"
+	"github.com/gentage/capybara/resolver"
 	"github.com/graph-gophers/graphql-go"
+
 	"github.com/graph-gophers/graphql-go/relay"
 	"github.com/graph-gophers/graphql-transport-ws/graphqlws"
-	"kalem/pubsub"
-	"kalem/resolver"
 
 	"gopkg.in/yaml.v2"
 )
