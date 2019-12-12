@@ -10,7 +10,7 @@ type Resolver struct {
 	pubsubClient pubsub.Client
 }
 
-func MakeResolver(pubsubClient pubsub.Client) *Resolver {
+func NewResolver(pubsubClient pubsub.Client) *Resolver {
 	return &Resolver{pubsubClient: pubsubClient}
 }
 

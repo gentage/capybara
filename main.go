@@ -52,7 +52,7 @@ func main() {
 
 	schema := graphql.MustParseSchema(
 		loadFile("schema.gql"),
-		resolver.MakeResolver(pubsub.MakeRedisClient(config.Redis.Host, config.Redis.Port)),
+		resolver.NewResolver(pubsub.MakeRedisClient(config.Redis.Host, config.Redis.Port)),
 	)
 
 	gql := graphqlws.NewHandlerFunc(schema, &relay.Handler{Schema: schema})
