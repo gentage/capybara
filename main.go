@@ -18,7 +18,7 @@ import (
 )
 
 type Config struct {
-	Gql struct {
+	Self struct {
 		Host string
 		Port int
 	}
@@ -29,38 +29,41 @@ type Config struct {
 	}
 }
 
+// TODO: handle errors
 func loadConfig(filename string) (config Config) {
 	bytes, _ := ioutil.ReadFile(filename)
 	_ = yaml.Unmarshal(bytes, &config)
 	return config
 }
 
+// TODO: handle errors
 func loadFile(filename string) string {
 	bytes, _ := ioutil.ReadFile(filename)
 	return string(bytes)
 }
 
-func playground(endpoint string) http.HandlerFunc {
+// TODO: handle errors
+func playground(config Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		t, _ := template.ParseFiles("templates/playground.html")
-		_ = t.Execute(w, endpoint)
+		_ = t.Execute(w, fmt.Sprintf("http://%s:%d/", config.Self.Host, config.Self.Port))
 	}
+}
+
+// TODO: handle errors
+func gql(config Config) http.HandlerFunc {
+	schema, _ := graphql.ParseSchema(
+		loadFile("schema.gql"),
+		resolver.NewResolver(pubsub.NewRedisClient(config.Redis.Host, config.Redis.Port)),
+	)
+	return graphqlws.NewHandlerFunc(schema, &relay.Handler{Schema: schema})
 }
 
 func main() {
 	config := loadConfig("config.yaml")
+	http.HandleFunc("/", gql(config))
+	http.HandleFunc("/p", playground(config))
 
-	schema := graphql.MustParseSchema(
-		loadFile("schema.gql"),
-		resolver.NewResolver(pubsub.MakeRedisClient(config.Redis.Host, config.Redis.Port)),
-	)
-
-	gql := graphqlws.NewHandlerFunc(schema, &relay.Handler{Schema: schema})
-	http.HandleFunc("/gql", gql)
-
-	endpoint := fmt.Sprintf("http://%s:%d/gql", config.Gql.Host, config.Gql.Port)
-	http.HandleFunc("/", playground(endpoint))
-
-	formattedPort := fmt.Sprintf(":%d", config.Gql.Port)
+	formattedPort := fmt.Sprintf(":%d", config.Self.Port)
 	log.Fatal(http.ListenAndServe(formattedPort, nil))
 }

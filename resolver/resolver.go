@@ -1,21 +1,22 @@
 package resolver
 
 import (
-	"context"
+	"fmt"
+	"time"
 
 	"github.com/gentage/capybara/pubsub"
 )
 
-type Resolver struct {
+type resolver struct {
 	pubsubClient pubsub.Client
 }
 
-func NewResolver(pubsubClient pubsub.Client) *Resolver {
-	return &Resolver{pubsubClient: pubsubClient}
+func NewResolver(pubsubClient pubsub.Client) *resolver {
+	return &resolver{pubsubClient: pubsubClient}
 }
 
-func (r *Resolver) Ping() string {
-	return "Pong!"
+func (r *resolver) Ping() string {
+	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
 
 type PublishArgs struct {
@@ -23,7 +24,7 @@ type PublishArgs struct {
 	Msg     string
 }
 
-func (r *Resolver) Publish(args PublishArgs) string {
+func (r *resolver) Publish(args PublishArgs) string {
 	_ = r.pubsubClient.Publish(args.Channel, args.Msg)
 	return args.Msg
 }
@@ -32,6 +33,7 @@ type SubscribeArgs struct {
 	Channel string
 }
 
-func (r *Resolver) Subscribe(ctx context.Context, args SubscribeArgs) <-chan string {
-	return r.pubsubClient.Subscribe(args.Channel)
+func (r *resolver) Subscribe(args SubscribeArgs) <-chan string {
+	c, _ := r.pubsubClient.Subscribe(args.Channel)
+	return c
 }

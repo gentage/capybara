@@ -6,12 +6,12 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
-type RedisClient struct {
+type redisClient struct {
 	client *redis.Client
 }
 
-func MakeRedisClient(host string, port int) *RedisClient {
-	return &RedisClient{
+func NewRedisClient(host string, port int) Client {
+	return &redisClient{
 		client: redis.NewClient(
 			&redis.Options{
 				Addr: fmt.Sprintf("%s:%d", host, port),
@@ -20,12 +20,12 @@ func MakeRedisClient(host string, port int) *RedisClient {
 	}
 }
 
-func (r *RedisClient) Publish(channel string, msg string) error {
+func (r *redisClient) Publish(channel string, msg string) error {
 	r.client.Publish(channel, msg)
 	return nil
 }
 
-func (r *RedisClient) Subscribe(channel string) chan string {
+func (r *redisClient) Subscribe(channel string) (<-chan string, error) {
 	c := make(chan string)
 	messages := r.client.Subscribe(channel).ChannelSize(16)
 	go func() {
@@ -33,5 +33,5 @@ func (r *RedisClient) Subscribe(channel string) chan string {
 			c <- m.Payload
 		}
 	}()
-	return c
+	return c, nil
 }

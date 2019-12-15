@@ -1,4 +1,4 @@
-gql:
+self:
   host: localhost
   port: 8080
 
